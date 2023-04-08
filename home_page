@@ -1,0 +1,72 @@
+import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:messenger/chat_message.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final GlobalKey<AnimatedListState> _animLisKey = GlobalKey<AnimatedListState>();
+  final TextEditingController _textEditingController = TextEditingController();
+
+  final List<String> _chats = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Chat App"),
+
+      ),
+      body: Column(
+        children: [
+          Expanded(
+              child: AnimatedList(
+                key: _animLisKey,
+                reverse: true,
+                itemBuilder: _buildItem,
+              )),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+            child: Row(
+              children: [
+                Expanded(
+                    child: TextField(
+                      controller: _textEditingController,
+                      decoration: const InputDecoration(hintText: "메세지 입력창"),
+                      onSubmitted: _handleSubmitted,
+                    ),
+                ),
+                const SizedBox(
+                  width: 8.0,
+                ),
+                FloatingActionButton(
+                  onPressed: (){
+                    _handleSubmitted(_textEditingController.text);
+                  },
+                  child: const Text("Send"),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItem(context, index, animation){
+    return ChatMessage(_chats[index], animation: animation);
+  }
+
+  void _handleSubmitted(String text){
+    Logger().d(text);
+      _textEditingController.clear();
+      _chats.insert(0, text);
+      _animLisKey.currentState?.insertItem(0);
+  }
+  }
+
